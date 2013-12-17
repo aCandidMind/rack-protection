@@ -30,7 +30,7 @@ module Rack
       def call(env)
         status, headers, body        = @app.call(env)
         if html? headers
-          if force_frame_options
+          if options[:force_frame_options]
             headers['X-Frame-Options'] = frame_options
           else
             headers['X-Frame-Options'] ||= frame_options
