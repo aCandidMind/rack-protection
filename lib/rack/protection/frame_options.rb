@@ -17,7 +17,7 @@ module Rack
     #                 frame. Use :deny to forbid any embedding, :sameorigin
     #                 to allow embedding from the same origin (default).
     class FrameOptions < Base
-      default_options :frame_options => :sameorigin
+      default_options :frame_options => :sameorigin, :force_frame_options => false
 
       def frame_options
         @frame_options ||= begin
@@ -29,7 +29,13 @@ module Rack
 
       def call(env)
         status, headers, body        = @app.call(env)
-        headers['X-Frame-Options'] ||= frame_options if html? headers
+        if html? headers
+          if force_frame_options
+            headers['X-Frame-Options'] = frame_options
+          else
+            headers['X-Frame-Options'] ||= frame_options
+          end
+        end
         [status, headers, body]
       end
     end
